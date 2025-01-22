@@ -1,0 +1,44 @@
+{
+  "development": {
+    "username": "bankup_user",
+    "password": "neKdeqbrkdlDvmLMoK40eOcJmEGvqb4A",
+    "database": "bankup",
+    "host": "dpg-cu3ql4hopnds738njkk0-a.oregon-postgres.render.com",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  },
+  "test": {
+    "username": "bankup_user",
+    "password": "neKdeqbrkdlDvmLMoK40eOcJmEGvqb4A",
+    "database": "bankup_test",
+    "host": "dpg-cu3ql4hopnds738njkk0-a.oregon-postgres.render.com",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  },
+  "production": {
+    "username": "bankup_user",
+    "password": "neKdeqbrkdlDvmLMoK40eOcJmEGvqb4A",
+    "database": "bankup_production",
+    "host": "dpg-cu3ql4hopnds738njkk0-a.oregon-postgres.render.com",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
+  }
+}

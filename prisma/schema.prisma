@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+model User {
+  id               Int        @id @default(autoincrement())
+  email            String     @unique
+  fullName         String
+  nationalIdNumber String     @unique
+  password         String
+  phoneNumber      String
+  address          String
+  roles            UserRole[]
+  dateOfBirth      DateTime
+  idImageId        Int        @unique
+  profileImageId   Int        @unique
+  idImage          Uploads    @relation("IdImageRelation", fields: [idImageId], references: [id]) // Relation field
+  profileImage     Uploads    @relation("ProfileImageRelation", fields: [profileImageId], references: [id]) // Relation field
+  emailVerified    Boolean    @default(false)
+  phoneVerified    Boolean    @default(false)
+  gender           Gender
+  isBlocked        Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Role {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique
+  isProtected Boolean    @default(false) // protected roles cannot be deleted
+  userRoles   UserRole[]
+}
+
+model UserRole {
+  userId Int
+  roleId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId]) // Composite primary key for efficient many-to-many relations
+}
+
+enum UploadType {
+  image
+  video
+}
+
+model Uploads {
+  id               Int        @id @default(autoincrement())
+  url              String
+  publicId         String
+  type             UploadType
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  idImageUser     User?     @relation("IdImageRelation") // Back-relation for idImageUrl
+  profileImageUser User?    @relation("ProfileImageRelation") // Back-relation for profileImageUrl
+}
