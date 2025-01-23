@@ -1,13 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// This is your Prisma schema file
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x", "windows"]
 }
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -17,6 +13,17 @@ enum Gender {
   male
   female
   other
+}
+
+enum UploadType {
+  image
+  video
+}
+
+enum LoanStatus {
+  pending
+  approved
+  rejected
 }
 
 model User {
@@ -31,21 +38,34 @@ model User {
   dateOfBirth      DateTime
   idImageId        Int        @unique
   profileImageId   Int        @unique
-  idImage          Uploads    @relation("IdImageRelation", fields: [idImageId], references: [id]) // Relation field
-  profileImage     Uploads    @relation("ProfileImageRelation", fields: [profileImageId], references: [id]) // Relation field
+  idImage          Uploads    @relation("IdImageRelation", fields: [idImageId], references: [id])
+  profileImage     Uploads    @relation("ProfileImageRelation", fields: [profileImageId], references: [id])
   emailVerified    Boolean    @default(false)
   phoneVerified    Boolean    @default(false)
   gender           Gender
   isBlocked        Boolean    @default(false)
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
+  loans            Loan[]     // One-to-many relationship for user loans
+}
+
+model Admin {
+  id          Int        @id @default(autoincrement())
+  email       String     @unique
+  password    String
+  fullName    String
+  isSuperAdmin Boolean   @default(false) // SuperAdmin has higher privileges
+  roles       AdminRole[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Role {
   id          Int        @id @default(autoincrement())
   name        String     @unique
-  isProtected Boolean    @default(false) // protected roles cannot be deleted
+  isProtected Boolean    @default(false) // Protected roles cannot be deleted
   userRoles   UserRole[]
+  adminRoles  AdminRole[]
 }
 
 model UserRole {
@@ -57,9 +77,25 @@ model UserRole {
   @@id([userId, roleId]) // Composite primary key for efficient many-to-many relations
 }
 
-enum UploadType {
-  image
-  video
+model AdminRole {
+  adminId Int
+  roleId  Int
+  admin   Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  role    Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([adminId, roleId]) // Composite primary key for many-to-many admin-role relationships
+}
+
+model Loan {
+  id          Int        @id @default(autoincrement())
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Float
+  term        Int        // Loan term in months
+  status      LoanStatus @default(pending)
+  comment     String?    // Admin comments for loan status updates
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 }
 
 model Uploads {
@@ -69,6 +105,6 @@ model Uploads {
   type             UploadType
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
-  idImageUser     User?     @relation("IdImageRelation") // Back-relation for idImageUrl
-  profileImageUser User?    @relation("ProfileImageRelation") // Back-relation for profileImageUrl
+  idImageUser      User?      @relation("IdImageRelation")
+  profileImageUser User?      @relation("ProfileImageRelation")
 }
