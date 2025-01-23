@@ -14,15 +14,18 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserDetails = async (req: Request, res: Response) => {
+export const getUserDetails = async (req: Request, res: Response): Promise<void> => {
   try {
     const user = await adminService.getUserDetails(Number(req.params.id));
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      res.status(404).json({ message: "User not found" });
+      return;
     }
-    return res.status(200).json(user);
+    res.status(200).json(user);
+    return;
   } catch (error) {
-    return res.status(500).json({ message: "Error fetching user details", error });
+    res.status(500).json({ message: "Error fetching user details", error });
+    return;
   }
 };
 
@@ -36,13 +39,16 @@ export const updateUserStatus = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteUser = async (req: Request, res: Response): Promise<void> => {
   try {
     const deleted = await adminService.deleteUser(Number(req.params.id));
-    if (!deleted) return res.status(404).json({ message: "User not found" });
-    return res.status(200).json({ message: "User deleted successfully" });
+    if (!deleted) res.status(404).json({ message: "User not found" });
+    return;
+    res.status(200).json({ message: "User deleted successfully" });
+    return;
   } catch (error) {
-    return res.status(500).json({ message: "Error deleting user", error });
+    res.status(500).json({ message: "Error deleting user", error });
+    return;
   }
 };
 
@@ -85,20 +91,35 @@ export const rejectLoan = async (req: Request, res: Response) => {
   }
 };
 
-// export const updateLoanTerms = async (req: Request, res: Response) => {
-//   try {
-//     const { loanId } = req.params;
-//     const { newAmount, newTerm } = req.body;
-//     const updatedLoan = await adminService.updateLoanTerms(parseInt(loanId), newAmount, newTerm);
-//     if (updatedLoan) {
-//       res.status(200).json({ message: "Loan terms updated successfully", loan: updatedLoan });
-//     } else {
-//       res.status(404).json({ message: "Loan not found" });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ message: "Error updating loan terms", error });
-//   }
-// };
+export const updateLoanTerms = async (req: Request, res: Response) => {
+  try {
+    const { loanId } = req.params;
+    const { newAmount, newTerm } = req.body;
+    const updateResult = await adminService.updateLoanTerms(parseInt(loanId), newAmount, newTerm);
+    if (updateResult !== undefined) {
+      res.status(200).json({ message: "Loan terms updated successfully", loan: updateResult });
+    } else {
+      res.status(404).json({ message: "Loan not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error updating loan terms", error });
+  }
+};
+
+export const updateLoanStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status, comment } = req.body;
+    const updateLoadStatus = await adminService.updateLoanStatus(parseInt(id), status, comment);
+    if (updateLoadStatus !== undefined) {
+      res.status(200).json({ message: "Loan status updated successfully", loan: updateLoadStatus });
+    } else {
+      res.status(404).json({ message: "Loan not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "Error updating loan status", error });
+  }
+}
 
 // Reports
 export const getLoanReports = async (req: Request, res: Response) => {

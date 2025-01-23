@@ -63,3 +63,7 @@ export const getPaymentReports = async (startDate: Date, endDate: Date) => {
     where: { createdAt: { gte: startDate, lte: endDate } },
   });
 };
+export function updateLoanTerms(arg0: number, newAmount: any, newTerm: any) {
+  throw new Error("Function not implemented.");
+}
+
