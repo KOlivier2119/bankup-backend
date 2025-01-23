@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { LoanStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -27,8 +28,9 @@ export const deleteUser = async (id: number) => {
   return prisma.user.delete({ where: { id } });
 };
 
-// Loans
-export const getAllLoans = async (page: number, limit: number, status: string) => {
+//Loans
+
+export const getAllLoans = async (page: number, limit: number, status: LoanStatus) => {
   const loans = await prisma.loan.findMany({
     skip: (page - 1) * limit,
     take: limit,
@@ -38,7 +40,7 @@ export const getAllLoans = async (page: number, limit: number, status: string) =
   return { loans, total };
 };
 
-export const updateLoanStatus = async (id: number, status: string, comment: string) => {
+export const updateLoanStatus = async (id: number, status: LoanStatus, comment: string) => {
   return prisma.loan.update({
     where: { id },
     data: { status, comment },

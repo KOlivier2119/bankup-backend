@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import * as adminService from "../services/adminService";
-import LoanModel from "../models/Loan";
-// import { UserModel } from "../models/User";
+import { boolean } from "zod";
+import { LoanStatus } from "@prisma/client";
 
 // Users
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -50,7 +50,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 export const getAllLoans = async (req: Request, res: Response) => {
   try {
     const { page = 1, limit = 10, status } = req.query;
-    const loans = await adminService.getAllLoans(Number(page), Number(limit), status as string);
+    const loans = await adminService.getAllLoans(Number(page), Number(limit), status as LoanStatus);
     res.status(200).json(loans);
   } catch (error) {
     res.status(500).json({ message: "Error fetching loans", error });
@@ -60,7 +60,7 @@ export const getAllLoans = async (req: Request, res: Response) => {
 export const approveLoan = async (req: Request, res: Response) => {
   try {
     const { loanId } = req.params;
-    const updatedLoan = await LoanModel.updateStatus(parseInt(loanId), "approved");
+    const updatedLoan = await adminService.updateLoanStatus(parseInt(loanId), "approved", "");
     if (updatedLoan) {
       res.status(200).json({ message: "Loan approved successfully" });
     } else {
@@ -74,7 +74,7 @@ export const approveLoan = async (req: Request, res: Response) => {
 export const rejectLoan = async (req: Request, res: Response) => {
   try {
     const { loanId } = req.params;
-    const updatedLoan = await LoanModel.updateStatus(parseInt(loanId), "rejected");
+    const updatedLoan = await adminService.updateLoanStatus(parseInt(loanId), "rejected", "");
     if (updatedLoan) {
       res.status(200).json({ message: "Loan rejected successfully" });
     } else {
@@ -85,20 +85,20 @@ export const rejectLoan = async (req: Request, res: Response) => {
   }
 };
 
-export const updateLoanTerms = async (req: Request, res: Response) => {
-  try {
-    const { loanId } = req.params;
-    const { newAmount, newTerm } = req.body;
-    const updatedLoan = await LoanModel.updateTerms(parseInt(loanId), newAmount, newTerm);
-    if (updatedLoan) {
-      res.status(200).json({ message: "Loan terms updated successfully", loan: updatedLoan });
-    } else {
-      res.status(404).json({ message: "Loan not found" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: "Error updating loan terms", error });
-  }
-};
+// export const updateLoanTerms = async (req: Request, res: Response) => {
+//   try {
+//     const { loanId } = req.params;
+//     const { newAmount, newTerm } = req.body;
+//     const updatedLoan = await adminService.updateLoanTerms(parseInt(loanId), newAmount, newTerm);
+//     if (updatedLoan) {
+//       res.status(200).json({ message: "Loan terms updated successfully", loan: updatedLoan });
+//     } else {
+//       res.status(404).json({ message: "Loan not found" });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ message: "Error updating loan terms", error });
+//   }
+// };
 
 // Reports
 export const getLoanReports = async (req: Request, res: Response) => {
