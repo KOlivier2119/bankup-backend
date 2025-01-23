@@ -26,27 +26,28 @@ enum LoanStatus {
 }
 
 model User {
-  id               Int        @id @default(autoincrement())
-  email            String     @unique
+  id               Int              @id @default(autoincrement())
+  email            String           @unique
   fullName         String
-  nationalIdNumber String     @unique
+  nationalIdNumber String           @unique
   password         String
   phoneNumber      String
   address          String
   roles            UserRole[]
   dateOfBirth      DateTime
-  idImageId        Int        @unique
-  profileImageId   Int        @unique
-  idImage          Uploads    @relation("IdImageRelation", fields: [idImageId], references: [id])
-  profileImage     Uploads    @relation("ProfileImageRelation", fields: [profileImageId], references: [id])
-  emailVerified    Boolean    @default(false)
-  phoneVerified    Boolean    @default(false)
+  idImageId        Int              @unique
+  profileImageId   Int              @unique
+  idImage          Uploads          @relation("IdImageRelation", fields: [idImageId], references: [id])
+  profileImage     Uploads          @relation("ProfileImageRelation", fields: [profileImageId], references: [id])
+  emailVerified    Boolean          @default(false)
+  phoneVerified    Boolean          @default(false)
   gender           Gender
-  isBlocked        Boolean    @default(false)
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  loans            Loan[]     // One-to-many relationship for user loans
-  payments         Payment[]   // One-to-many relationship for user payments
+  isBlocked        Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  loans            Loan[]           // One-to-many relationship for user loans
+  payments         Payment[]        // One-to-many relationship for user payments
+  supportMessages  SupportMessage[]  // One-to-many relationship for support messages
 }
 
 model Admin {
@@ -96,7 +97,7 @@ model Loan {
   comment     String?    // Admin comments for loan status updates
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  payments     Payment[]   // One-to-many relationship for loan payments
+  payments    Payment[]   // One-to-many relationship for loan payments
 }
 
 model Uploads {
@@ -108,6 +109,24 @@ model Uploads {
   updatedAt        DateTime   @updatedAt
   idImageUser      User?      @relation("IdImageRelation")
   profileImageUser User?      @relation("ProfileImageRelation")
+}
+
+model SupportChat {
+  id        Int              @id @default(autoincrement())
+  createdAt DateTime         @default(now())
+  messages  SupportMessage[]  // One-to-many relationship for support messages
+}
+
+model SupportMessage {
+  id         Int        @id @default(autoincrement())
+  chatId     Int
+  userId     Int        // Add this field to link to User
+  subject    String
+  message    String
+  createdAt  DateTime   @default(now())
+  
+  chat       SupportChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade) // Establish the reverse relation
 }
 
 model Payment {
