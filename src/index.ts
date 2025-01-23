@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cors());
-app.use("/api/v1", router);
+app.use("/api/v1/", router);
 
 app.get("/", (req: Request, res: Response) => {
   res

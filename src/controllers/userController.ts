@@ -8,11 +8,15 @@ import {
   deleteUserProfile,
 } from "../models/User";
 
-export default async function getUserProfile(req: Request, res: Response) {
+export default async function getUserProfile(req: Request, res: Response): Promise<void> {
     try {
         const id = parseInt(req.params.id);
+        console.log(id);
         const user = await getUserById(id);
-        if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+        }
         res.json({ user });
     } catch (error) {
         res.status(500).json({ message: "Internal Server Error" });
@@ -46,7 +50,8 @@ export const getNotifications = async (req: Request, res: Response) => {
     const notifications = await getUserNotifications(id);
     res.json({ notifications });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    const errorMessage = (error instanceof Error) ? error.message : "Unknown error";
+    res.status(500).json({ message: errorMessage });
   }
 };
 
